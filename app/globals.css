@@ -1,26 +1,200 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-sm: 1px 1px var(--color-foreground);
+  --shadow-md: 2px 2px var(--color-foreground);
+  --shadow-lg: 3px 3px var(--color-foreground);
+  --shadow-xl: 4px 4px var(--color-foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(0.9702 0.0475 96.81);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.7038 0.1208 214.73);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.719 0.1751 22.5);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(39.625% 0.24638 271.822);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* -------------------------------------------------------------------------- */
+  /* 1. CONFIGURACIÓN DE ESCALA TIPOGRÁFICA (Major Third Scale)                  */
+  /* -------------------------------------------------------------------------- */
+
+    /* Tamaño base del párrafo (16px) [1] */
+    --font-size-base: 1rem; 
+    /* Proporción para la escala (Aumento del 25%) [1] */
+    --type-scale-ratio: 1.25; 
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+    padding: 10px;
+    
+    /* -------------------------------------------------------------------------- */
+    /* 2. ESTILOS BASE (Párrafo y Legibilidad)                                    */
+    /* -------------------------------------------------------------------------- */
+    
+    p {
+      font-size: var(--font-size-base); /* 1rem (16px) [1] */
+      line-height: 1.5; /* 150% del tamaño para dar espacio para respirar [2] */
+      letter-spacing: normal; /* Mantener el valor predeterminado para máxima legibilidad [2] */
+    }
+    
+    /* -------------------------------------------------------------------------- */
+    /* 3. ESCALA DE ENCABEZADOS (Major Third Scale) [1, 2]                    */
+    /*    * A medida que el texto crece, se ajusta (aprieta) el line-height       */
+    /*      y el letter-spacing para mayor impacto. [2]                         */
+    /* -------------------------------------------------------------------------- */
+    
+    /* H6 (25% más grande que la base) */
+    h6 {
+      /* 1rem * 1.25 = 1.25rem (20px) [2] */
+      font-size: calc(var(--font-size-base) * var(--type-scale-ratio)); 
+      line-height: 1.35; 
+      letter-spacing: -0.01em; 
+    }
+    
+    /* H5 (25% más grande que H6) */
+    h5 {
+      /* 1.25rem * 1.25 = 1.5625rem (25px) [2] */
+      font-size: calc(var(--font-size-base) * var(--type-scale-ratio) * var(--type-scale-ratio)); 
+      line-height: 1.25; 
+      letter-spacing: -0.02em; 
+    }
+    
+    /* H4 (25% más grande que H5) */
+    h4 {
+      /* 1.5625rem * 1.25 = 1.953125rem */
+      font-size: calc(var(--font-size-base) * var(--type-scale-ratio) * var(--type-scale-ratio) * var(--type-scale-ratio)); 
+      line-height: 1.2; 
+      letter-spacing: -0.025em; 
+    }
+    
+    /* H3, H2, H1 (Continuar con la escala del 25% y seguir ajustando line-height) */
+    h3 {
+      font-size: calc(var(--font-size-base) * pow(var(--type-scale-ratio), 4));
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+    
+    h2 {
+      font-size: calc(var(--font-size-base) * pow(var(--type-scale-ratio), 5));
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+    }
+    
+    h1 {
+      font-size: calc(var(--font-size-base) * pow(var(--type-scale-ratio), 6));
+      line-height: 1.05; /* La altura de línea más ajustada para el encabezado más grande [2] */
+      letter-spacing: -0.04em;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+
+
