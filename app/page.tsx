@@ -1,16 +1,12 @@
-// import Image from "next/image";
-
-import { GameCard } from "@/components/ui/card";
+import { GameCard } from "@/components/ui/card"
 
 export default function Home() {
   return (
-    <>
-      <GameCard
-        name="Game 1"
-        img="/assets/tic_tac_toe.png"
-        url="/tic-tac-toe"
-      />
-      
-    </>
-    );
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+      <GameCard name="Tic Tac Toe" img="/assets/tic_tac_toe.png" url="/tic-tac-toe" />
+      <GameCard name="Battleship" img="/assets/battleship.png" url="/battleship" />
+      {/* <GameCard name="Hang man" img="/assets/tic_tac_toe.png" url="/game-3" />
+      <GameCard name="Guessing" img="/assets/tic_tac_toe.png" url="/game-4" /> */}
+    </div>
+  )
 }

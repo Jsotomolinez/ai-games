@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Square from '@/components/ui/square';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { playFailureSound, playSuccessSound } from '@/utils/audio';
 
 function calculateWinner(squares: (string | null)[]) {
   const lines = [
@@ -38,13 +40,13 @@ export default function TicTacToePage() {
   const playAI = React.useCallback(async () => {
     setLoadingAI(true);
     try {
-      // Prompt detallado para la IA
+      // Detailed prompt for the AI
       const prompt = `
-Eres un agente que juega Tic-Tac-Toe (3 en raya) como el jugador '🔵'.
-El tablero está representado como un array de 9 posiciones, donde cada posición puede ser '❌', '🔵' o null.
-Tu objetivo es elegir el índice (0-8) donde deberías jugar para maximizar tus posibilidades de ganar o bloquear al oponente.
-Responde únicamente con el número del índice donde quieres jugar, sin ningún texto adicional.
-Tablero actual: ${JSON.stringify(squares)}
+You are an agent playing Tic-Tac-Toe as the '🔵' player.
+The board is represented as an array of 9 positions, where each position can be '❌', '🔵' or null.
+Your goal is to choose the index (0-8) where you should play to maximize your chances of winning or blocking the opponent.
+Respond only with the index number (0-8) where you want to play, with no additional text.
+Current board: ${JSON.stringify(squares)}
       `.trim();
 
       const response = await fetch('/api/gemini', {
@@ -61,7 +63,7 @@ Tablero actual: ${JSON.stringify(squares)}
         setXIsNext(true);
       }
     } catch (error) {
-      console.error('Error al jugar la IA:', error);
+      console.error('Error playing AI:', error);
     } finally {
       setLoadingAI(false);
     }
@@ -81,7 +83,7 @@ Tablero actual: ${JSON.stringify(squares)}
   }
 
   useEffect(() => {
-    // Si es el turno de la IA y el juego no ha terminado, llama a la API
+    // If it's the AI's turn and the game hasn't ended, call the API
     if (!xIsNext && !winner && !isDraw && !loadingAI) {
       playAI();
     }
@@ -89,28 +91,55 @@ Tablero actual: ${JSON.stringify(squares)}
 
   let status;
   if (winner) {
-    status = `Ganador: ${winner}`;
+    status = `Winner: ${winner}`;
+    if (winner === '❌') {
+      playSuccessSound();
+    } else {
+      playFailureSound();
+    } 
   } else if (isDraw) {
-    status = 'Empate';
+    status = 'Draw';
   } else {
-    status = `Turno de: ${xIsNext ? '❌' : '🔵'}`;
+    status = `Turn: ${xIsNext ? '❌' : '🔵'}`;
   }
 
+
   return (
-    <>
-      <div className="flex flex-col items-center justify-center bg-card w-fit p-5 h-fit shadow-lg">
-        <h1 className="text-3xl font-bold mb-4">3 en Raya</h1>
-        <div className="mb-2 text-lg">{status}</div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {squares.map((value, i) => (
-            <Square key={i} value={value} onClick={() => handleClick(i)} disabled={!!winner || loadingAI} />
-          ))}
-        </div>
-        <Button onClick={handleRestart} disabled={loadingAI}>
-          Reiniciar
-        </Button>
-        {loadingAI && <div className="mt-2 text-blue-500">Pensando...</div>}
-      </div>
-    </>
-  );
+    <div className="flex items-center justify-center min-h-[calc(100vh-200px)] p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="bg-primary border-b-2 border-black">
+          <CardTitle className="text-center">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Tic-Tac-Toe</h1>
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="pt-6 pb-4">
+          <div className="mb-6 text-center">
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold">{status}</p>
+            {loadingAI && (
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground animate-pulse">🤖 Thinking...</p>
+            )}
+          </div>
+
+          <div className="flex justify-center">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 w-fit">
+              {squares.map((value, i) => (
+                <Square key={i} value={value} onClick={() => handleClick(i)} disabled={!!winner || loadingAI} />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex justify-center border-t-2 border-black pt-6 pb-6">
+          <Button
+            onClick={handleRestart}
+            disabled={loadingAI}
+            className="w-full sm:w-auto px-8 py-2 text-base sm:text-lg font-bold"
+          >
+            Restart game
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  )
 }

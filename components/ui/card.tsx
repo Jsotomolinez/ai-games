@@ -87,25 +87,23 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 // Custom components
 
-
-function GameCard(
-  { name, img, url }: { name: string, img: string, url: string }
-) {
+function GameCard({ name, img, url }: { name: string; img: string; url: string }) {
   return (
     <Card className="w-fit group">
-      <CardHeader className="group-hover:bg-secondary transition-colors duration-150 bg-primary">
-        <CardTitle className="text-center p-2">
-          <h4>{name}</h4>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Link href={url}>
-          <Image src={img} alt={name} width={200} height={200} />
-        </Link>
-      </CardContent>
+      <Link href={url}>
+        <CardHeader className="group-hover:bg-secondary transition-colors duration-150 bg-primary">
+          <CardTitle className="text-center p-2">
+            <h4>{name}</h4>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Image src={img || "/placeholder.svg"} alt={name} width={200} height={200} />
+        </CardContent>
+      </Link>
     </Card>
-  );
+  )
 }
+
 
 export {
   Card,
