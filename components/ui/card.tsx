@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 
 import Image from "next/image"
@@ -88,12 +90,54 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 // Custom components
 
 function GameCard({ name, img, url }: { name: string; img: string; url: string }) {
+  const titleRef = React.useRef<HTMLHeadingElement>(null)
+  const [fontSize, setFontSize] = React.useState<number>(24) // base size in px
+
+  React.useEffect(() => {
+    const el = titleRef.current
+    if (!el) return
+
+    const parent = el.parentElement as HTMLElement | null
+    if (!parent) return
+
+    // Fit text to one line by decreasing font size down to a minimum
+    const fit = () => {
+      let size = 24 // start size (px)
+      const min = 12 // minimum readable size
+      // Reset to start size on each measurement
+      el.style.fontSize = `${size}px`
+      el.style.whiteSpace = 'nowrap'
+      el.style.overflow = 'hidden'
+
+      while (el.scrollWidth > parent.clientWidth && size > min) {
+        size -= 1
+        el.style.fontSize = `${size}px`
+      }
+      setFontSize(size)
+    }
+
+    // Initial fit
+    fit()
+
+    // Observe size changes of the parent for responsive fit
+    const ro = new ResizeObserver(() => fit())
+    ro.observe(parent)
+
+    // Also refit on window font changes/zoom/orientation
+    window.addEventListener('resize', fit)
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', fit)
+    }
+  }, [name])
+
   return (
     <Card className="w-fit group">
       <Link href={url}>
         <CardHeader className="group-hover:bg-secondary transition-colors duration-150 bg-primary">
           <CardTitle className="text-center p-2">
-            <h4>{name}</h4>
+            <h4 ref={titleRef} style={{ fontSize: fontSize, lineHeight: 1, whiteSpace: 'nowrap' }}>{name}</h4>
           </CardTitle>
         </CardHeader>
         <CardContent>
