@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { playFailureSound, playShootSound, playSinkingSound, playSuccessSound } from "@/utils/audio"
@@ -30,6 +31,7 @@ const SHIPS = [
 ]
 
 export default function BattleshipPage() {
+  const router = useRouter()
   const [gamePhase, setGamePhase] = useState<"placement" | "battle" | "gameOver">("placement")
   const [playerBoard, setPlayerBoard] = useState<Cell[][]>([])
   const [enemyBoard, setEnemyBoard] = useState<Cell[][]>([])
@@ -63,7 +65,7 @@ export default function BattleshipPage() {
     setGamePhase("placement")
     setCurrentShipIndex(0)
     setIsHorizontal(true)
-  setMessage("Place your Aircraft Carrier (5 cells)")
+    setMessage("Place your Aircraft Carrier (5 cells)")
     setWinner(null)
     setIsPlayerTurn(true)
   }
@@ -114,7 +116,7 @@ export default function BattleshipPage() {
 
       if (currentShipIndex < SHIPS.length - 1) {
         setCurrentShipIndex(currentShipIndex + 1)
-        setMessage(`Place your ${SHIPS[currentShipIndex + 1].name} (${SHIPS[currentShipIndex + 1].size} cells)`) 
+        setMessage(`Place your ${SHIPS[currentShipIndex + 1].name} (${SHIPS[currentShipIndex + 1].size} cells)`)
       } else {
         placeEnemyShips()
         setGamePhase("battle")
@@ -178,7 +180,7 @@ export default function BattleshipPage() {
       }
     } else {
       newBoard[row][col].state = "miss"
-  setMessage("Miss...")
+      setMessage("Miss...")
     }
 
     setEnemyBoard(newBoard)
@@ -201,15 +203,16 @@ export default function BattleshipPage() {
   }
 
   async function enemyTurn() {
+    console.log("AI is thinking...");
     let row: number = 0, col: number = 0
     const sanitizedBoard = playerBoard.map(row =>
       row.map(cell => {
-      // Oculta las casillas que contienen barcos no impactados marcándolas como "empty"
-      if (cell.state === "ship") {
-        return { state: "empty" as CellState }
-      }
-      // Mantén el resto de estados (incluyendo hits/sunk/miss). Opcionalmente puedes quitar shipId aquí si quieres más privacidad.
-      return { state: cell.state, shipId: cell.shipId }
+        // Oculta las casillas que contienen barcos no impactados marcándolas como "empty"
+        if (cell.state === "ship") {
+          return { state: "empty" as CellState }
+        }
+        // Mantén el resto de estados (incluyendo hits/sunk/miss). Opcionalmente puedes quitar shipId aquí si quieres más privacidad.
+        return { state: cell.state, shipId: cell.shipId }
       }),
     )
 
@@ -225,6 +228,10 @@ export default function BattleshipPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
+      if (response.status === 429) {
+        router.push('/service-unavailble')
+        return
+      }
       const data = await response.json();
       const text = typeof data.text === 'string' ? data.text.trim() : ''
       const parts = text.split(',')
@@ -360,7 +367,10 @@ export default function BattleshipPage() {
                     text-lg sm:text-xl
                     transition-all duration-150
                     hover:scale-105 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]
+                    hover:bg-secondary
+                    hover:cursor-pointer
                     active:scale-95
+                    active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]
                     disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                     shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]
                   `}
@@ -390,7 +400,6 @@ export default function BattleshipPage() {
             {gamePhase === "placement" && (
               <Button
                 onClick={() => setIsHorizontal(!isHorizontal)}
-                className="mt-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
               >
                 Rotate: {isHorizontal ? "Horizontal ↔️" : "Vertical ↕️"}
               </Button>
@@ -398,6 +407,9 @@ export default function BattleshipPage() {
           </div>
 
           <div className="space-y-8">
+            {gamePhase === "battle" && !isPlayerTurn && (
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground text-center animate-pulse">🤖 Thinking...</p>
+            )}
             {gamePhase !== "placement" && (
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 text-destructive">Enemy Board</h2>
@@ -421,9 +433,7 @@ export default function BattleshipPage() {
               </div>
             )}
           </div>
-          <Button
-            onClick={initializeGame}
-          >
+          <Button onClick={initializeGame}>
             New Game
           </Button>
         </CardFooter>

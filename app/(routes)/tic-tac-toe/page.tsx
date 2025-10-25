@@ -1,6 +1,8 @@
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Square from '@/components/ui/square';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,13 +33,15 @@ function calculateWinner(squares: (string | null)[]) {
 }
 
 export default function TicTacToePage() {
+  const router = useRouter();
   const [squares, setSquares] = useState<(string | null)[]>(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
   const winner = calculateWinner(squares);
   const isDraw = squares.every((sq) => sq !== null) && !winner;
   const [loadingAI, setLoadingAI] = useState(false);
 
-  const playAI = React.useCallback(async () => {
+  const playAI = React.useCallback(async (board: (string | null)[]) => {
+    console.log('AI is thinking...');
     setLoadingAI(true);
     try {
       // Detailed prompt for the AI
@@ -46,7 +50,7 @@ You are an agent playing Tic-Tac-Toe as the '🔵' player.
 The board is represented as an array of 9 positions, where each position can be '❌', '🔵' or null.
 Your goal is to choose the index (0-8) where you should play to maximize your chances of winning or blocking the opponent.
 Respond only with the index number (0-8) where you want to play, with no additional text.
-Current board: ${JSON.stringify(squares)}
+Current board: ${JSON.stringify(board)}
       `.trim();
 
       const response = await fetch('/api/gemini', {
@@ -54,10 +58,14 @@ Current board: ${JSON.stringify(squares)}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
       });
+      if (response.status === 429) {
+        router.push('/service-unavailble');
+        return;
+      }
       const data = await response.json();
       const aiMove = typeof data.text === 'string' ? parseInt(data.text, 10) : null;
-      if (aiMove !== null && squares[aiMove] === null) {
-        const nextSquares = squares.slice();
+      if (aiMove !== null && board[aiMove] === null) {
+        const nextSquares = board.slice();
         nextSquares[aiMove] = '🔵';
         setSquares(nextSquares);
         setXIsNext(true);
@@ -67,7 +75,7 @@ Current board: ${JSON.stringify(squares)}
     } finally {
       setLoadingAI(false);
     }
-  }, [squares]);
+  }, [router]);
 
   function handleClick(i: number) {
     if (squares[i] || winner || loadingAI) return;
@@ -75,6 +83,12 @@ Current board: ${JSON.stringify(squares)}
     nextSquares[i] = '❌';
     setSquares(nextSquares);
     setXIsNext(false);
+    // Only call AI if game not finished after player's move
+    const nextWinner = calculateWinner(nextSquares);
+    const nextDraw = nextSquares.every((sq) => sq !== null) && !nextWinner;
+    if (!nextWinner && !nextDraw) {
+      void playAI(nextSquares);
+    }
   }
 
   function handleRestart() {
@@ -82,12 +96,7 @@ Current board: ${JSON.stringify(squares)}
     setXIsNext(true);
   }
 
-  useEffect(() => {
-    // If it's the AI's turn and the game hasn't ended, call the API
-    if (!xIsNext && !winner && !isDraw && !loadingAI) {
-      playAI();
-    }
-  }, [xIsNext, winner, isDraw, squares, loadingAI, playAI]);
+  // Removed auto-play effect to avoid recursive calls; AI is triggered directly after the player's move.
 
   let status;
   if (winner) {
