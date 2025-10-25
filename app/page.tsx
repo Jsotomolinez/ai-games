@@ -6,7 +6,6 @@ export default function Home() {
       <GameCard name="Tic Tac Toe" img="/assets/tic_tac_toe.png" url="/tic-tac-toe" />
       <GameCard name="Battleship" img="/assets/battleship.png" url="/battleship" />
       <GameCard name="Hang man" img="/assets/hang_man.png" url="/hang-man" />
-      {/* <GameCard name="Guessing" img="/assets/tic_tac_toe.png" url="/guessing" /> */}
     </div>
   )
 }
